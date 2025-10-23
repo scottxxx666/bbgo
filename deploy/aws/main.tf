@@ -134,71 +134,75 @@ resource "aws_security_group" "ec2" {
 }
 
 # Security Group for Aurora
-resource "aws_security_group" "rds" {
-  name        = "${var.project_name}-rds-sg"
-  description = "Security group for Aurora PostgreSQL"
-  vpc_id      = aws_vpc.bbgo.id
-
-  # Inbound: PostgreSQL from EC2 only
-  ingress {
-    description     = "PostgreSQL from EC2"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2.id]
-  }
-
-  tags = {
-    Name = "${var.project_name}-rds-sg"
-  }
-}
+# Commented out - RDS will be created manually through AWS Console
+# resource "aws_security_group" "rds" {
+#   name        = "${var.project_name}-rds-sg"
+#   description = "Security group for Aurora PostgreSQL"
+#   vpc_id      = aws_vpc.bbgo.id
+#
+#   # Inbound: PostgreSQL from EC2 only
+#   ingress {
+#     description     = "PostgreSQL from EC2"
+#     from_port       = 5432
+#     to_port         = 5432
+#     protocol        = "tcp"
+#     security_groups = [aws_security_group.ec2.id]
+#   }
+#
+#   tags = {
+#     Name = "${var.project_name}-rds-sg"
+#   }
+# }
 
 # Redis will run locally on EC2 - no separate security group needed
 
 # DB Subnet Group for Aurora
-resource "aws_db_subnet_group" "aurora" {
-  name       = "${var.project_name}-db-subnet-group"
-  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
-
-  tags = {
-    Name = "${var.project_name}-db-subnet-group"
-  }
-}
+# Commented out - RDS will be created manually through AWS Console
+# resource "aws_db_subnet_group" "aurora" {
+#   name       = "${var.project_name}-db-subnet-group"
+#   subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+#
+#   tags = {
+#     Name = "${var.project_name}-db-subnet-group"
+#   }
+# }
 
 # Aurora PostgreSQL Cluster
-resource "aws_rds_cluster" "bbgo" {
-  cluster_identifier      = "${var.project_name}-cluster"
-  engine                  = "aurora-postgresql"
-  engine_version          = "15.4"
-  database_name           = var.db_name
-  master_username         = var.db_username
-  master_password         = var.db_password
-  db_subnet_group_name    = aws_db_subnet_group.aurora.name
-  vpc_security_group_ids  = [aws_security_group.rds.id]
-  skip_final_snapshot     = true
-  backup_retention_period = 7
-  preferred_backup_window = "03:00-04:00"
-  storage_encrypted       = true
-  port                    = 5432
-
-  tags = {
-    Name = "${var.project_name}-aurora-cluster"
-  }
-}
+# Commented out - RDS will be created manually through AWS Console
+# resource "aws_rds_cluster" "bbgo" {
+#   cluster_identifier      = "${var.project_name}-cluster"
+#   engine                  = "aurora-postgresql"
+#   engine_version          = "15.4"
+#   database_name           = var.db_name
+#   master_username         = var.db_username
+#   master_password         = var.db_password
+#   db_subnet_group_name    = aws_db_subnet_group.aurora.name
+#   vpc_security_group_ids  = [aws_security_group.rds.id]
+#   skip_final_snapshot     = true
+#   backup_retention_period = 7
+#   preferred_backup_window = "03:00-04:00"
+#   storage_encrypted       = true
+#   port                    = 5432
+#
+#   tags = {
+#     Name = "${var.project_name}-aurora-cluster"
+#   }
+# }
 
 # Aurora PostgreSQL Instance
-resource "aws_rds_cluster_instance" "bbgo" {
-  identifier          = "${var.project_name}-instance"
-  cluster_identifier  = aws_rds_cluster.bbgo.id
-  instance_class      = "db.t3.micro"
-  engine              = aws_rds_cluster.bbgo.engine
-  engine_version      = aws_rds_cluster.bbgo.engine_version
-  publicly_accessible = false
-
-  tags = {
-    Name = "${var.project_name}-aurora-instance"
-  }
-}
+# Commented out - RDS will be created manually through AWS Console
+# resource "aws_rds_cluster_instance" "bbgo" {
+#   identifier          = "${var.project_name}-instance"
+#   cluster_identifier  = aws_rds_cluster.bbgo.id
+#   instance_class      = "db.t3.micro"
+#   engine              = aws_rds_cluster.bbgo.engine
+#   engine_version      = aws_rds_cluster.bbgo.engine_version
+#   publicly_accessible = false
+#
+#   tags = {
+#     Name = "${var.project_name}-aurora-instance"
+#   }
+# }
 
 # Redis will run locally on EC2 - no ElastiCache cluster needed
 
@@ -295,7 +299,8 @@ resource "aws_instance" "bbgo" {
   }
 
   user_data = templatefile("${path.module}/user-data.sh", {
-    db_endpoint = aws_rds_cluster.bbgo.endpoint
+    # RDS will be created manually - these are just placeholders
+    db_endpoint = "MANUALLY_CREATED_RDS_ENDPOINT"
     db_name     = var.db_name
     db_username = var.db_username
   })
@@ -304,9 +309,10 @@ resource "aws_instance" "bbgo" {
     Name = "${var.project_name}-ec2"
   }
 
-  depends_on = [
-    aws_rds_cluster_instance.bbgo
-  ]
+  # No RDS dependency - will be created manually
+  # depends_on = [
+  #   aws_rds_cluster_instance.bbgo
+  # ]
 }
 
 # Elastic IP
