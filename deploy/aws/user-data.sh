@@ -66,9 +66,9 @@ sudo -u ec2-user mkdir -p /home/ec2-user/bbgo-prod/{config,var/data,logs}
 # Create environment file template (user will fill in manually)
 echo "Creating environment file template..."
 cat > /home/ec2-user/.env.local.template <<'EOF'
-# Database Configuration (create RDS manually first)
-# DB_DRIVER=postgres
-# DB_DSN=host=YOUR_RDS_ENDPOINT port=5432 user=YOUR_DB_USERNAME password=YOUR_DB_PASSWORD dbname=YOUR_DB_NAME sslmode=require
+# Database Configuration
+DB_DRIVER=postgres
+DB_DSN=host=${db_endpoint} port=5432 user=${db_username} password=YOUR_DB_PASSWORD dbname=${db_name} sslmode=require
 
 # Exchange API Keys - Binance
 BINANCE_API_KEY=your_binance_api_key
@@ -88,13 +88,11 @@ chmod 644 /home/ec2-user/.env.local.template
 
 echo ""
 echo "=========================================="
-echo "IMPORTANT: Setup Instructions"
+echo "IMPORTANT: Create your .env.local file"
 echo "=========================================="
-echo "1. Create RDS database through AWS Console (optional)"
-echo "2. Copy template: cp ~/.env.local.template ~/.env.local"
-echo "3. Edit .env.local with RDS endpoint and API keys: nano ~/.env.local"
-echo "4. Set permissions: chmod 600 ~/.env.local"
-echo "5. If using database, run migrations: bbgo-migrate"
+echo "1. Copy template: cp ~/.env.local.template ~/.env.local"
+echo "2. Edit with your DB password and API keys: nano ~/.env.local"
+echo "3. Set permissions: chmod 600 ~/.env.local"
 echo "=========================================="
 echo ""
 
@@ -160,9 +158,16 @@ YAML_EOF
 
 chown ec2-user:ec2-user /home/ec2-user/bbgo-prod/config/xmaker.yaml
 
-# Note: RDS will be created manually through AWS Console
-echo "RDS database not included in Terraform deployment"
-echo "You will need to create RDS manually and update .env.local with the endpoint"
+# Wait for RDS to be ready (basic connectivity check)
+echo "Checking RDS PostgreSQL connectivity..."
+for i in {1..30}; do
+  if timeout 5 bash -c "cat < /dev/null > /dev/tcp/${db_endpoint}/5432" 2>/dev/null; then
+    echo "RDS PostgreSQL is reachable!"
+    break
+  fi
+  echo "Waiting for RDS PostgreSQL... (attempt $i/30)"
+  sleep 10
+done
 
 # Create helpful scripts for running BBGO
 echo "Creating helper scripts..."
@@ -234,23 +239,18 @@ BBGO XMaker Trading Bot
 ========================================
 
 SETUP REQUIRED:
-  1. Create RDS database (optional - for trade history):
-     - Go to AWS Console > RDS
-     - Create PostgreSQL database in private subnet
-     - Allow access from EC2 security group
-
-  2. Create .env.local:
+  1. Create .env.local:
      cp ~/.env.local.template ~/.env.local
      nano ~/.env.local
      chmod 600 ~/.env.local
 
-  3. Update config (optional):
+  2. Update config (optional):
      nano ~/bbgo-prod/config/xmaker.yaml
 
-  4. Run database migrations (if using RDS):
+  3. Run database migrations:
      bbgo-migrate
 
-  5. Run BBGO:
+  4. Run BBGO:
      bbgo-run
 
 Quick Commands:
@@ -265,8 +265,8 @@ Files:
   Env:     ~/.env.local (create from template)
   Source:  ~/bbgo/
 
-Database (if created):
-  psql -h [rds-endpoint] -U [username] -d bbgo
+Database:
+  psql -h ${db_endpoint} -U ${db_username} -d ${db_name}
 
 For help: https://github.com/c9s/bbgo
 ========================================
@@ -278,9 +278,8 @@ echo "Time: $(date)"
 echo "=========================================="
 echo ""
 echo "Next steps:"
-echo "1. (Optional) Create RDS database through AWS Console"
-echo "2. Create .env.local with your RDS endpoint and API keys"
-echo "3. Run: bbgo-migrate (if using database)"
-echo "4. Run: bbgo-run"
+echo "1. Create .env.local with your DB password and API keys"
+echo "2. Run: bbgo-migrate"
+echo "3. Run: bbgo-run"
 echo ""
 echo "=========================================="
