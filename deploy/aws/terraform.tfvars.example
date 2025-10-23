@@ -1,0 +1,23 @@
+# AWS Configuration
+aws_region   = "us-east-1"
+project_name = "bbgo-xmaker"
+environment  = "production"
+
+# Your public IP for SSH access (find it at https://ifconfig.me)
+# Format must be: x.x.x.x/32
+my_ip = "1.2.3.4/32"
+
+# SSH Public Key (paste your ~/.ssh/id_rsa.pub content here)
+# Generate with: ssh-keygen -t rsa -b 4096 -f ~/.ssh/bbgo-key
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQD..."
+
+# Database Configuration (PostgreSQL)
+db_name     = "bbgo"
+db_username = "postgres"
+db_password = "YourSecurePassword123!"
+
+# Note: Database will be destroyed without final snapshot
+# If you need backups, create manual snapshots before destroying
+
+# Note: Exchange API keys are NOT stored in Terraform
+# You will configure them manually in .env.local on the EC2 instance
