@@ -169,7 +169,7 @@ resource "aws_db_subnet_group" "postgres" {
 resource "aws_db_instance" "bbgo" {
   identifier             = "${var.project_name}-postgres"
   engine                 = "postgres"
-  engine_version         = "15.4"
+  engine_version         = "16.3"
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   max_allocated_storage  = 100
@@ -279,7 +279,7 @@ resource "aws_key_pair" "bbgo" {
 # EC2 Instance
 resource "aws_instance" "bbgo" {
   ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = "t2.micro"
+  instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.ec2.id]
   key_name               = aws_key_pair.bbgo.key_name
@@ -287,7 +287,7 @@ resource "aws_instance" "bbgo" {
 
   root_block_device {
     volume_type           = "gp3"
-    volume_size           = 20
+    volume_size           = 30
     delete_on_termination = true
     encrypted             = true
   }

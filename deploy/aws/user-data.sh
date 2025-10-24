@@ -21,10 +21,10 @@ echo "Installing Git, PostgreSQL client..."
 yum install -y git postgresql15
 
 # Install Go 1.21
-echo "Installing Go 1.21..."
-GO_VERSION="1.21.5"
+echo "Installing Go 1.25..."
+GO_VERSION="1.25.3"
 cd /tmp
-wget -q https://go.dev/dl/go$${GO_VERSION}.linux-amd64.tar.gz
+curl -sL https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go${GO_VERSION}.linux-amd64.tar.gz
 rm -rf /usr/local/go
 tar -C /usr/local -xzf go$${GO_VERSION}.linux-amd64.tar.gz
 
@@ -65,7 +65,7 @@ sudo -u ec2-user mkdir -p /home/ec2-user/bbgo-prod/{config,var/data,logs}
 
 # Create environment file template (user will fill in manually)
 echo "Creating environment file template..."
-cat > /home/ec2-user/.env.local.template <<'EOF'
+cat > /home/ec2-user/.env.local.template <<EOF
 # Database Configuration
 DB_DRIVER=postgres
 DB_DSN=host=${db_endpoint} port=5432 user=${db_username} password=YOUR_DB_PASSWORD dbname=${db_name} sslmode=require
@@ -233,7 +233,7 @@ alias bbgo-prod='cd ~/bbgo-prod'
 BASHRC_EOF
 
 # Create welcome message
-cat > /etc/motd <<'MOTD_EOF'
+cat > /etc/motd <<MOTD_EOF
 ========================================
 BBGO XMaker Trading Bot
 ========================================
