@@ -17,14 +17,14 @@ echo "Updating system packages..."
 yum update -y
 
 # Install dependencies
-echo "Installing Git, PostgreSQL client..."
-yum install -y git postgresql15
+echo "Installing Git, PostgreSQL client, screen..."
+yum install -y git postgresql15 screen
 
 # Install Go 1.21
 echo "Installing Go 1.25..."
 GO_VERSION="1.25.3"
 cd /tmp
-curl -sL https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz -o go${GO_VERSION}.linux-amd64.tar.gz
+curl -sL https://go.dev/dl/go$${GO_VERSION}.linux-amd64.tar.gz -o go$${GO_VERSION}.linux-amd64.tar.gz
 rm -rf /usr/local/go
 tar -C /usr/local -xzf go$${GO_VERSION}.linux-amd64.tar.gz
 
@@ -259,6 +259,13 @@ Quick Commands:
   bbgo-update   - Update BBGO from GitHub
   bbgo-cd       - Go to BBGO source directory
   bbgo-prod     - Go to production directory
+
+Screen (keep BBGO running after logout):
+  screen -S bbgo     - Start new screen session
+  bbgo-run           - Run BBGO inside screen
+  Ctrl+A, D          - Detach from screen
+  screen -r bbgo     - Reattach to screen
+  screen -ls         - List all sessions
 
 Files:
   Config:  ~/bbgo-prod/config/xmaker.yaml

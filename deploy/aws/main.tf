@@ -278,12 +278,13 @@ resource "aws_key_pair" "bbgo" {
 
 # EC2 Instance
 resource "aws_instance" "bbgo" {
-  ami                    = data.aws_ami.amazon_linux_2023.id
-  instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.ec2.id]
-  key_name               = aws_key_pair.bbgo.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ec2.name
+  ami                         = data.aws_ami.amazon_linux_2023.id
+  instance_type               = "t3.small"
+  subnet_id                   = aws_subnet.public.id
+  vpc_security_group_ids      = [aws_security_group.ec2.id]
+  key_name                    = aws_key_pair.bbgo.key_name
+  iam_instance_profile        = aws_iam_instance_profile.ec2.name
+  associate_public_ip_address = true
 
   root_block_device {
     volume_type           = "gp3"
